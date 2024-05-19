@@ -1,4 +1,4 @@
-ad#!/bin/sh
+#!/bin/sh
 
 #SBATCH --partition=gpu
 #SBATCH --nodes=1
