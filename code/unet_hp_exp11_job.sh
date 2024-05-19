@@ -34,7 +34,7 @@ cp -rv $HOME/data/picai_labels/ $TMPDIR/data/picai_labels
 python3 $HOME/repos/picai_baseline/src/picai_baseline/prepare_data_semi_supervised.py --workdir=$TMPDIR/data/preprocessed --imagesdir=$TMPDIR/data/images --labelsdir=$TMPDIR/data/picai_labels --spacing 3.0 0.5 0.5 --matrix_size 20 256 256
 
 #overviews
-python3 $HOME/repos/picai_baseline/src/picai_baseline/unet/plan_overview.py --task=Task0011_picai_hp_exp11 --workdir=$TMPDIR/data --preprocessed_data_path=$TMPDIR/data/preprocessed/nnUNet_raw_data/{task} --overviews_path=$TMPDIR/data/overviews/unet
+python3 $HOME/repos/picai_baseline/src/picai_baseline/unet/plan_overview.py --task=Task2203_picai_baseline --workdir=$TMPDIR/data --preprocessed_data_path=$TMPDIR/data/preprocessed/nnUNet_raw_data/{task} --overviews_path=$TMPDIR/data/overviews/unet
 
 # Copy the data back for later user
 cp -rv $TMPDIR/data/preprocessed $HOME/data/preprocessed
