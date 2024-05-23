@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --gpus=1
 #SBATCH --mem=40G
-#SBATCH --time=24:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --gpus-per-node=1
 #SBATCH --output=/home/mnienke/logs/slurm-%j.out
 
@@ -42,6 +42,6 @@ cp -rv $TMPDIR/data/overviews $HOME/data/overviews
 
 
 # Run training script
-python3 -u $HOME/repos/picai_baseline/src/picai_baseline/unet/train_ext.py --weights_dir $HOME/models/picai/unet/hp_exp12 --overviews_dir $TMPDIR/data/overviews/unet --folds 0 1 2 3 4 --num_epochs 250 --optimizer SparseAdam
+python3 -u $HOME/repos/picai_baseline/src/picai_baseline/unet/train_ext.py --weights_dir $HOME/models/picai/unet/hp_exp12 --overviews_dir $TMPDIR/data/overviews/unet --folds 0 1 2 3 4 --num_epochs 100 --optimizer SparseAdam
 
 ## Changed optimizer
