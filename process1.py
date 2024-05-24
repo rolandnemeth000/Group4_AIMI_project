@@ -329,7 +329,7 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         ensemble_output_2 = np.empty((len(self.models_tabular), 2))
 
         for i, model in enumerate(self.models_tabular):
-            ensemble_output_2[i] = model.predict_proba([self.input_data])
+            ensemble_output_2[i] = model.predict_proba(self.input_data)
                 
         ensemble_output_2_mean = ensemble_output_2.mean(axis=1)[1]
 
