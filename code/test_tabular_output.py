@@ -40,26 +40,23 @@ def main():
         "prostate_volume": prostate_volume,
     }
 
-    tabular_data_df = (
-        pd.DataFrame(tabular_data_dict, index=[0])
-        if isinstance(age, (int, float))
-        else pd.DataFrame.from_dict(tabular_data_dict)
-    )
+    tabular_data_df = pd.DataFrame(tabular_data_dict, index=[0])
 
     input_data = tabular_data_df
 
     input_data = scaler.transform(input_data)
 
-    ensemble_output = np.empty((len(models), len(input_data)))
+    ensemble_output = np.empty((len(models), 2))
+
+    print(input_data)
 
     for i, model in enumerate(models):
-        ensemble_output[i] = model.predict_proba(input_data)[:, 1]
+        ensemble_output[i] = model.predict_proba(input_data)
 
-    ensemble_output_mean = ensemble_output.mean(axis=0)
-    print(float(ensemble_output_mean))
+    ensemble_output_mean = ensemble_output.mean(axis=1)[1]
 
     with open(OUTPUT_DIR / "csPCA_probability_prediction.json", mode="w") as f:
-        json.dump(float(ensemble_output_mean), f, indent=4)
+        json.dump(ensemble_output_mean, f, indent=4)
 
 
 if __name__ == "__main__":

@@ -206,12 +206,7 @@ class csPCaAlgorithm(SegmentationAlgorithm):
             "prostate_volume": self.prostate_volume,
         }
 
-        tabular_data_df = (
-            pd.DataFrame(tabular_data_dict, index=[0])
-            if isinstance(self.age, (int, float))
-            else pd.DataFrame.from_dict(tabular_data_dict)
-        )
-
+        tabular_data_df = pd.DataFrame(tabular_data_dict, index=[0])
         self.input_data = tabular_data_df
         self.input_data = self.scaler.transform(self.input_data)
 
@@ -329,23 +324,14 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         # save detection map
         atomic_image_write(cspca_det_map_sitk, self.detection_map_output_path)
 
-
-
-
-
         
         #Doing things for tabular data         
-        ensemble_output_2 = np.empty((len(self.models_tabular), len(self.input_data)))
+        ensemble_output_2 = np.empty((len(self.models_tabular), 2))
 
         for i, model in enumerate(self.models_tabular):
-            for j in range(len(self.input_data)): 
-                ensemble_output_2[i][j] = model.predict_proba([self.input_data[j]])[:, 1]
-        
-        print("ENSEMBLE OUTPUT ", ensemble_output_2)
-        
-        ensemble_output_2_mean = ensemble_output_2.mean(axis=0)
-        ensemble_output_2_mean_float = [float(value) for value in ensemble_output_2_mean]
-
+            ensemble_output_2[i] = model.predict_proba([self.input_data])
+                
+        ensemble_output_2_mean = ensemble_output_2.mean(axis=1)[1]
 
         # with open(OUTPUT_DIR / "csPCA_probability_prediction.json", mode="w") as f:
         #     json.dump(float(ensemble_output_2_mean), f, indent=4)
@@ -357,8 +343,8 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         weight_img = 0.7 
         weight_tab = 0.3 
 
-        weighted_img = np.array([i * weight_img for i in prob_img])
-        weighted_tab = np.array([i * weight_tab for i in prob_tab])
+        weighted_img = weight_img * prob_img
+        weighted_tab = weight_tab * prob_tab
 
         total_prob_value = weighted_img+weighted_tab
 
