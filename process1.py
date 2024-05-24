@@ -187,7 +187,7 @@ class csPCaAlgorithm(SegmentationAlgorithm):
             with open(model_path, mode="rb") as model_file:
                 self.models_tabular.append(pickle.load(model_file))
         with open(MODELS_DIR / "mlp_scaler.pkl", mode="rb") as scaler_file:
-            scaler = pickle.load(scaler_file)
+            self.scaler = pickle.load(scaler_file)
 
         
         
@@ -208,12 +208,12 @@ class csPCaAlgorithm(SegmentationAlgorithm):
 
         tabular_data_df = (
             pd.DataFrame(tabular_data_dict, index=[0])
-            if isinstance(age, (int, float))
+            if isinstance(self.age, (int, float))
             else pd.DataFrame.from_dict(tabular_data_dict)
         )
 
         self.input_data = tabular_data_df
-        self.input_data = scaler.transform(self.input_data)
+        self.input_data = self.scaler.transform(self.input_data)
 
 
 
