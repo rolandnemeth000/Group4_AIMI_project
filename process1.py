@@ -177,16 +177,16 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         #)  
         
         #MODELS_DIR = Path("C:/Users/nienk.LAPTOP-QC09UOEF/Documents/picai challenge/picai_unet_gc_algorithm - kopie - kopie/tabular_models")
-        MODELS_DIR = Path("/opt/algorithm/tabular_models/")
+        self.MODELS_DIR = Path("/opt/algorithm/tabular_models/")
 
         #os.makedirs("outputtesttest", exist_ok=True)
         #OUTPUT_DIR = Path("C:/Users/nienk.LAPTOP-QC09UOEF/Documents/picai challenge/picai_unet_gc_algorithm - kopie - kopie/outputtesttest")
 
         self.models_tabular = []
-        for model_path in MODELS_DIR.glob(r"MLP_fold-[0-9].pkl"):
+        for model_path in self.MODELS_DIR.glob(r"MLP_fold-[0-9].pkl"):
             with open(model_path, mode="rb") as model_file:
                 self.models_tabular.append(pickle.load(model_file))
-        with open(MODELS_DIR / "mlp_scaler.pkl", mode="rb") as scaler_file:
+        with open(self.MODELS_DIR / "mlp_scaler.pkl", mode="rb") as scaler_file:
             self.scaler = pickle.load(scaler_file)
 
         
