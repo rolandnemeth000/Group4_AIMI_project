@@ -15,8 +15,8 @@ module load 2022
 module load Python/3.10.4-GCCcore-11.3.0
 
 # Set up environment
-rm $HOME/repos/copies/picai_baseline/src/picai_baseline/unet/training_setup/unets.py
-cp $HOME/repos/AIMI_project/code/unets.py $HOME/repos/copies/picai_baseline/src/picai_baseline/unet/training_setup
+rm $HOME/repos/copies/picai_baseline/src/picai_baseline/unet/training_setup/neural_networks/unets.py
+cp $HOME/repos/AIMI_project/code/unets.py $HOME/repos/copies/picai_baseline/src/picai_baseline/unet/training_setup/neural_networks
 python3 -m pip install --user --upgrade pip
 python3 -m pip install --user scikit-build
 python3 -m pip install --user -e $HOME/repos/copies/picai_baseline
