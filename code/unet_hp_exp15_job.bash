@@ -41,6 +41,6 @@ cp -rv $TMPDIR/data/overviews $HOME/data/overviews
 
 
 # Run training script
-python3 -u $HOME/repos/picai_baseline/src/picai_baseline/unet/train.py --weights_dir $HOME/models/picai/unet/hp_exp15 --overviews_dir $TMPDIR/data/overviews/unet --folds 0 1 2 3 4 --batch_size 4   
+python3 -u $HOME/repos/picai_baseline/src/picai_baseline/unet/train.py --weights_dir $HOME/models/picai/unet/hp_exp15 --overviews_dir $TMPDIR/data/overviews/unet --folds 0 1 2 3 4 --batch_size 4 --use_def_model_hp 0
 
 ## Changed batch size 
