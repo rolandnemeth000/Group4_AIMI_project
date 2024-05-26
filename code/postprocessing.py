@@ -8,12 +8,13 @@ from matplotlib.widgets import Slider
 from skimage import filters, measure, morphology
 import SimpleITK as sitk
 
-
-OUTPUT_PATH = Path("/home/rolandnemeth/AIMI_project/output/ensemble_output.npy")
+# Set image and output paths
+OUTPUT_PATH = Path("/home/rolandnemeth/AIMI_project/output/ensemble_output.npy") # Save 
 INPUT_PATH = Path(
     "/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/images/transverse-adc-prostate-mri/10032_1000032_adc.mha"
 )
 
+# Load output
 with open(OUTPUT_PATH, mode="rb") as f:
     ensemble_output = np.load(f)
 
@@ -46,6 +47,7 @@ def postprocessing():
 def locate_prostate_adc_single_side():
     """
     Find the prostate area with strong assumptions from a single side.
+    #TODO: Create a 3d bounding box
     """
     # Load and preprocess the image
     image = sitk.ReadImage(INPUT_PATH)

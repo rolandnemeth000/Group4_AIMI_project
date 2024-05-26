@@ -54,9 +54,11 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         # note: these are fixed paths that should not be modified
 
         # directory to model weights
+        # Change these to your directories
         self.algorithm_weights_dir = Path("/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/weights")
 
         # path to image files
+        # Change these to your directories
         self.image_input_dirs = [
             "/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/images/transverse-t2-prostate-mri",
             "/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/images/transverse-adc-prostate-mri",
@@ -67,10 +69,14 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         self.image_input_paths = [list(Path(x).glob("*.mha"))[0] for x in self.image_input_dirs]
 
         # load clinical information
+        # Change these to your files
+
         with open("/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/clinical-information-prostate-mri.json") as fp:
             self.clinical_info = json.load(fp)
 
         # path to output files
+        # Change these to your files
+
         self.detection_map_output_path = Path("/home/rolandnemeth/AIMI_project/output/images/cspca-detection-map/cspca_detection_map.mha")
         self.case_level_likelihood_output_file = Path("/home/rolandnemeth/AIMI_project/output/cspca-case-level-likelihood.json")
 
@@ -235,6 +241,8 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         # ensemble softmax predictions
         ensemble_output = np.mean(outputs, axis=0).astype('float32')
 
+        # Save ensemble output to work with in postprocessing file
+        # Change filepath as needed
         with open("/home/rolandnemeth/AIMI_project/output/ensemble_output.npy", mode="wb") as f: 
             np.save(f, ensemble_output)
 
