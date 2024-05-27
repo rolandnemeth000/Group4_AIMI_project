@@ -29,7 +29,110 @@ from picai_baseline.unet.training_setup.preprocess_utils import z_score_norm
 from picai_prep.data_utils import atomic_image_write
 from picai_prep.preprocessing import Sample, PreprocessingSettings, crop_or_pad, resample_img
 from report_guided_annotation import extract_lesion_candidates
-from scipy.ndimage import gaussian_filter
+from scipy.ndimage import gaussian_filter, binary_opening, binary_closing, generate_binary_structure
+from skimage.measure import label, regionprops
+from skimage import filters, measure, morphology
+
+def postprocessing(ensemble_output, adc_image_path, structuring_element=generate_binary_structure(3, 1), patience_buffer=30):
+    """
+    Performs opening, contour identification, convex hull and closing on the ensemble_output.
+    Additionally filters on the approximate are of the prostate based on strong assumptions
+    """
+
+    opened_ensemble_output_mask = binary_opening(
+        ensemble_output, structure=structuring_element
+    )
+    # print(eroded_ensemble_output)
+    labeled_image = label(opened_ensemble_output_mask)
+    contours = regionprops(labeled_image)
+    for contour in contours:
+        hull = contour.convex_image
+        opened_ensemble_output_mask[hull] = 1
+    filled_image = binary_closing(opened_ensemble_output_mask, structure=structuring_element)
+
+    processed_ensemble_output = np.zeros(ensemble_output.shape)
+    processed_ensemble_output[filled_image] = ensemble_output[filled_image]
+    approximate_prostate_bbox = locate_prostate_adc_single_side(ensemble_output, adc_image_path)
+    minr, minc, maxr, maxc = approximate_prostate_bbox
+    final_ensemble_output = np.zeros(processed_ensemble_output.shape)
+    final_ensemble_output[
+        :, minr + patience_buffer : maxr + patience_buffer, minc : maxc
+    ] = processed_ensemble_output[
+        :, minr + patience_buffer : maxr + patience_buffer, minc : maxc
+    ]
+    return final_ensemble_output
+
+def locate_prostate_adc_single_side(ensemble_output, adc_image_path):
+    """
+    Find the prostate area with strong assumptions from a single side.
+    #TODO: Create a 3d bounding box
+    """
+    # print(adc_image_path)
+    # Load and preprocess the image
+    image = sitk.ReadImage(adc_image_path)
+
+    # image_dims = np.shape(image_array)
+    output_dims = np.shape(ensemble_output)[::-1]
+    # print(output_dims)
+
+    resampled_image = sitk.Resample(
+        image,
+        output_dims,
+        sitk.Transform(),
+        sitk.sitkLinear,
+        image.GetOrigin(),
+        (
+            image.GetSpacing()[0] * image.GetWidth() / output_dims[0],
+            image.GetSpacing()[1] * image.GetHeight() / output_dims[1],
+            image.GetSpacing()[2] * image.GetDepth() / output_dims[2],
+        ),
+        image.GetDirection(),
+        0.0,
+        image.GetPixelIDValue(),
+    )
+    image_array = sitk.GetArrayFromImage(resampled_image)
+
+    # image_dims = np.shape(image_array)
+    # print(image_dims)
+    output_dims = np.shape(ensemble_output)
+
+    # Select a slice for processing (e.g., the middle slice)
+    slice_index = image_array.shape[0] // 2
+    slice_image = image_array[slice_index]
+
+    # slice_output_index = ensemble_output.shape[0] // 2
+    # slice_output = ensemble_output[slice_output_index] # can be used to plot the corresponding slice on the output
+
+    # Step 1: Pre-processing
+    # Apply Gaussian filter to remove noise
+    smoothed_image = filters.gaussian(slice_image, sigma=4.0)
+
+    # Step 2: Thresholding
+    # Use Otsu's method to create a binary image
+    threshold_value = filters.threshold_otsu(smoothed_image)
+    binary_image = smoothed_image > threshold_value
+
+    # Step 3: Morphological Operations
+    # Remove small objects and fill small holes
+    cleaned_image = morphology.remove_small_objects(binary_image, min_size=500)
+    cleaned_image = morphology.remove_small_holes(cleaned_image, area_threshold=500)
+
+    # Step 4: Contour Identification
+    # Label connected components
+    labeled_image = measure.label(cleaned_image)
+    regions = measure.regionprops(labeled_image)
+    # plt.imshow(labeled_image)
+    # plt.show()
+    # Step 5: Region Properties
+    # Analyze properties to identify the prostate
+    # Assuming prostate is the closest region to the center in the cleaned binary image
+
+    center = np.array(image_array.shape[1:3]) / 2
+    closest_region = min(
+        regions, key=lambda r: np.linalg.norm(center - np.array(r.centroid)[1:])
+    )
+
+    return closest_region.bbox
 
 
 class csPCaAlgorithm(SegmentationAlgorithm):
@@ -54,36 +157,29 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         # note: these are fixed paths that should not be modified
 
         # directory to model weights
-        # Change these to your directories
-        self.algorithm_weights_dir = Path("/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/weights")
+        self.algorithm_weights_dir = Path("/opt/algorithm/weights/")
 
         # path to image files
-        # Change these to your directories
-        # self.image_input_dirs = [
-        #     "/home/rolandnemeth/AIMI_project/input/10000"
-        #     # "/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/images/transverse-t2-prostate-mri",
-        #     # "/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/images/transverse-adc-prostate-mri",
-        #     # "/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/images/transverse-hbv-prostate-mri",
-        #     # "/input/images/coronal-t2-prostate-mri/",  # not used in this algorithm
-        #     # "/input/images/sagittal-t2-prostate-mri/"  # not used in this algorithm
-        # ]
-        # self.image_input_paths = [list(Path(x).glob("*.mha"))[0] for x in self.image_input_dirs]
-        self.image_input_paths = [Path("/home/rolandnemeth/AIMI_project/input/10000/10000_1000000_t2w.mha"),
-                                  Path("/home/rolandnemeth/AIMI_project/input/10000/10000_1000000_adc.mha"),
-                                  Path("/home/rolandnemeth/AIMI_project/input/10000/10000_1000000_hbv.mha")]
+        self.image_input_dirs = [
+            "/input/images/transverse-t2-prostate-mri/",
+            "/input/images/transverse-adc-prostate-mri/",
+            "/input/images/transverse-hbv-prostate-mri/",
+            # "/input/images/coronal-t2-prostate-mri/",  # not used in this algorithm
+            # "/input/images/sagittal-t2-prostate-mri/"  # not used in this algorithm
+        ]
 
+        self.image_input_paths = [list(Path(x).glob("*.mha"))[0] for x in self.image_input_dirs]
 
         # load clinical information
-        # Change these to your files
 
-        with open("/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/clinical-information-prostate-mri.json") as fp:
+        with open("/input/clinical-information-prostate-mri.json") as fp:
             self.clinical_info = json.load(fp)
 
-        # path to output files
-        # Change these to your files
 
-        self.detection_map_output_path = Path("/home/rolandnemeth/AIMI_project/output/images/cspca-detection-map/cspca_detection_map.mha")
-        self.case_level_likelihood_output_file = Path("/home/rolandnemeth/AIMI_project/output/cspca-case-level-likelihood.json")
+
+        # path to output files
+        self.detection_map_output_path = Path("/output/images/cspca-detection-map/cspca_detection_map.mha")
+        self.case_level_likelihood_output_file = Path("/output/cspca-case-level-likelihood.json")
 
         # create output directory
         self.detection_map_output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -246,10 +342,12 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         # ensemble softmax predictions
         ensemble_output = np.mean(outputs, axis=0).astype('float32')
 
-        # Save ensemble output to work with in postprocessing file
-        # Change filepath as needed
-        with open("/home/rolandnemeth/AIMI_project/output/ensemble_output2.npy", mode="wb") as f: 
-            np.save(f, ensemble_output)
+        adc_image_path = ""
+        for image_input_path in self.image_input_paths:
+            if image_input_path.name.endswith("_adc.mha"):
+                adc_image_path = image_input_path
+
+        ensemble_output = postprocessing(ensemble_output=ensemble_output, adc_image_path=adc_image_path)
 
         # read and resample images (used for reverting predictions only)
         sitk_img = [

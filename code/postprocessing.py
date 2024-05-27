@@ -9,10 +9,15 @@ from skimage import filters, measure, morphology
 import SimpleITK as sitk
 
 # Set image and output paths
-OUTPUT_PATH = Path("/home/rolandnemeth/AIMI_project/output/ensemble_output.npy") # Save 
-INPUT_PATH = Path(
-    "/home/rolandnemeth/AIMI_project/repos/picai_unet_semi_supervised_gc_algorithm/test/images/transverse-adc-prostate-mri/10032_1000032_adc.mha"
-)
+# OUTPUT_PATH = Path("/home/rolandnemeth/AIMI_project/output/ensemble_output.npy")  # Save
+# INPUT_PATH = Path("/home/rolandnemeth/AIMI_project/repos/picai_nnunet_semi_supervised_gc_algorithm/test/images/transverse-adc-prostate-mri/10032_1000032_adc.mha")
+
+
+OUTPUT_PATH = Path("/home/rolandnemeth/AIMI_project/output/ensemble_output2.npy")  # Save
+INPUT_PATH = Path("/home/rolandnemeth/AIMI_project/input/10000/10000_1000000_adc.mha")
+
+
+PATIENCE_BUFFER = 30
 
 # Load output
 with open(OUTPUT_PATH, mode="rb") as f:
@@ -25,7 +30,7 @@ structuring_element = generate_binary_structure(3, 1)
 def postprocessing():
     """
     Performs opening, contour identification, convex hull and closing on the ensemble_output.
-    #TODO: Filter output to just contain in prostate area.
+    Additionally filters on the approximate are of the prostate based on strong assumptions
     """
 
     opened_ensemble_output_mask = binary_opening(
@@ -37,11 +42,19 @@ def postprocessing():
     for contour in contours:
         hull = contour.convex_image
         opened_ensemble_output_mask[hull] = 1
-    filled_image = binary_closing(opened_ensemble_output_mask)
+    filled_image = binary_closing(opened_ensemble_output_mask, structure=structuring_element)
 
     processed_ensemble_output = np.zeros(ensemble_output.shape)
     processed_ensemble_output[filled_image] = ensemble_output[filled_image]
-    return processed_ensemble_output
+    approximate_prostate_bbox = locate_prostate_adc_single_side()
+    minr, minc, maxr, maxc = approximate_prostate_bbox
+    final_ensemble_output = np.zeros(processed_ensemble_output.shape)
+    final_ensemble_output[
+        :, minr + PATIENCE_BUFFER : maxr + PATIENCE_BUFFER, minc : maxc
+    ] = processed_ensemble_output[
+        :, minr + PATIENCE_BUFFER : maxr + PATIENCE_BUFFER, minc : maxc
+    ]
+    return final_ensemble_output
 
 
 def locate_prostate_adc_single_side():
@@ -81,12 +94,12 @@ def locate_prostate_adc_single_side():
     slice_index = image_array.shape[0] // 2
     slice_image = image_array[slice_index]
 
-    slice_output_index = ensemble_output.shape[0] // 2
+    # slice_output_index = ensemble_output.shape[0] // 2
     # slice_output = ensemble_output[slice_output_index] # can be used to plot the corresponding slice on the output
 
     # Step 1: Pre-processing
     # Apply Gaussian filter to remove noise
-    smoothed_image = filters.gaussian(slice_image, sigma=2.0)
+    smoothed_image = filters.gaussian(slice_image, sigma=3.0)
 
     # Step 2: Thresholding
     # Use Otsu's method to create a binary image
@@ -102,17 +115,26 @@ def locate_prostate_adc_single_side():
     # Label connected components
     labeled_image = measure.label(cleaned_image)
     regions = measure.regionprops(labeled_image)
-
+    # plt.imshow(labeled_image)
+    # plt.show()
     # Step 5: Region Properties
     # Analyze properties to identify the prostate
     # Assuming prostate is the largest region in the cleaned binary image
-    largest_region = max(regions, key=lambda r: r.area)
+
+    center = np.array(image_array.shape[1:3]) / 2
+    closest_region = min(
+        regions, key=lambda r: np.linalg.norm(center - np.array(r.centroid)[1:])
+    )
+    # largest_region = max(regions, key=lambda r: r.area)
 
     # Get the bounding box of the largest region
-    minr, minc, maxr, maxc = largest_region.bbox
-
+    # minr, minc, maxr, maxc = largest_region.bbox
+    minr, minc, maxr, maxc = closest_region.bbox
+    # print(f"bbox: {closest_region.bbox}")
     # Visualize the result
-    fig, ax = plt.subplots(1, 2, figsize=(15, 10))
+    minr = minr + PATIENCE_BUFFER
+    maxr = maxr + PATIENCE_BUFFER
+    fig, ax = plt.subplots(1, 2, figsize=(10, 10))
 
     ax[0].imshow(slice_image, cmap="gray")  # Display the original slice
     ax[0].set_title("Original Slice")
@@ -127,11 +149,29 @@ def locate_prostate_adc_single_side():
     ax[1].axis("off")
 
     plt.show()
+    for i, ensemble_output_slice in enumerate(ensemble_output):
+        fig, ax = plt.subplots(1, 2, figsize=(10, 10))
+
+        ax[0].imshow(ensemble_output_slice, cmap="gray")  # Display the original slice
+        ax[0].set_title("Original Slice")
+        ax[0].axis("off")
+
+        ax[1].imshow(ensemble_output_slice, cmap="gray")  # Display the original slice
+        rect = plt.Rectangle(
+            (minc, minr), maxc - minc, maxr - minr, fill=False, edgecolor="red", linewidth=2
+        )
+        ax[1].add_patch(rect)
+        ax[1].set_title("Detected Prostate Region")
+        ax[1].axis("off")
+
+        plt.show()
+
+    return closest_region.bbox
 
 
 def plot_slices(array_of_image):
     """
-    Plot slices from "I don't know exactly which" direction. +
+    Plot slices from "I don't know exactly which" direction.
     """
     fig, ax = plt.subplots()
     plt.subplots_adjust(bottom=0.25)
@@ -169,7 +209,10 @@ def plot_slices(array_of_image):
     slider.on_changed(update)
     plt.show()
 
-
 if __name__ == "__main__":
-    locate_prostate_adc_single_side()
+    final_ensemble_output = postprocessing()
+    # locate_prostate_adc_single_side()
+    # plot_slices()
+    # plot_slices(ensemble_output)
+    plot_slices(final_ensemble_output)
     pass
