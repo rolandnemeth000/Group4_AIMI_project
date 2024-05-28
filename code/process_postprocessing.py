@@ -342,10 +342,7 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         # ensemble softmax predictions
         ensemble_output = np.mean(outputs, axis=0).astype('float32')
 
-        adc_image_path = ""
-        for image_input_path in self.image_input_paths:
-            if image_input_path.name.endswith("_adc.mha"):
-                adc_image_path = image_input_path
+        adc_image_path = self.image_input_paths[1] # Assuming the images are in the same order as their input directories.
 
         ensemble_output = postprocessing(ensemble_output=ensemble_output, adc_image_path=adc_image_path)
 
