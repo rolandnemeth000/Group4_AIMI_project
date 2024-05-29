@@ -18,7 +18,7 @@ log_line = namedtuple("log_line", ["JobID", "JobName", "State"])
 
 def parse_joblist(path=JOBLIST_PATH):
     unfiltered_joblist = []
-    with open(path, mode="r") as joblist_file:
+    with open(path, mode="r", encoding="utf8") as joblist_file:
         for i, line in enumerate(joblist_file.readlines()):
             if re.search("-", line):
                 continue
@@ -44,7 +44,7 @@ def parse_logs(filtered_joblist):
         train_info = []
         valid_info = []
         try: 
-            with open(log_path, mode="r") as log:
+            with open(log_path, mode="r", encoding="utf8") as log:
                 for log_line in log.readlines():
                     global train_info_
                     train_info_ = {}
@@ -91,9 +91,51 @@ def parse_logs(filtered_joblist):
 if __name__ == "__main__":
     joblist = parse_joblist()
     train_infos, valid_infos = parse_logs(joblist)
-    # pprint(train_infos)
+    # pprint(valid_infos)
+    # print(train_infos.keys())
     # for k, v in train_infos.items():
     #     print(k, len(v))
 
-    pprint(valid_infos["unet_hp_exp13_job.sh"])
-    pass
+
+
+    num_plots = 8
+    num_rows = 2 
+    fig, axes = plt.subplots(num_rows, int(num_plots/num_rows), figsize=(20, 30))
+    id1, id2 = 0,0 
+    for idx, name in enumerate(train_infos): 
+        if len(train_infos[name])==0:
+            continue
+    
+        log = train_infos[name]
+        
+        # ??? THING ARE IN THERE DOUBLE? 
+        # for t in thing: 
+        #     if t['Epoch'] == 10: 
+        #         print(t)
+
+        result = {}
+        for entry in log:
+            epoch = entry['Epoch']
+            train_loss = entry['Train loss']
+            
+            if epoch in result:
+                result[epoch].append(train_loss)
+            else:
+                result[epoch] = [train_loss]
+        
+        sort_dict = sorted(result.items())
+        average_values = [sum(item[1]) / len(item[1]) for item in sort_dict]
+
+        axes[int(id1//4),int(id2%4)].plot(average_values)
+        axes[int(id1//4),int(id2%4)].set_title(f'{name}')
+        axes[int(id1//4),int(id2%4)].set_xlabel("epoch")
+        axes[int(id1//4),int(id2%4)].set_ylabel("loss value")
+
+    
+        id1+=1
+        id2+=1 
+
+    plt.show()
+
+
+
