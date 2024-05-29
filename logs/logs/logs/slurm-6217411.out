@@ -1,0 +1,16 @@
+Your home directory is /home/mnienke and the scratch directory is /scratch-local/mnienke.6217411
+
+JOB STATISTICS
+==============
+Job ID: 6217411
+Cluster: snellius
+User/Group: mnienke/mnienke
+State: RUNNING
+Nodes: 1
+Cores per node: 18
+CPU Utilized: 00:00:00
+CPU Efficiency: 0.00% of 00:02:24 core-walltime
+Job Wall-clock time: 00:00:08
+Memory Utilized: 0.00 MB (estimated maximum)
+Memory Efficiency: 0.00% of 40.00 GB (40.00 GB/node)
+WARNING: Efficiency statistics may be misleading for RUNNING jobs.
