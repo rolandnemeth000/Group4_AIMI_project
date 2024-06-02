@@ -11,16 +11,16 @@ Welcome to the GitHub repository hosting the code and experiment settings of Gro
 ## Prerequisites
 The experiments heavily rely on the code provided by the hosts. Therefore, I would like to refer the reader to the corresponding repositories:
 
-> [picai_baseline].(https://github.com/DIAGNijmegen/picai_baseline)
-The ```picai_baseline``` repository contains scripts to train a UNet models that were used in our experiments and as such essential to reproduce our results.
+> [picai_baseline](https://github.com/DIAGNijmegen/picai_baseline)
+The ```picai_baseline``` repository contains scripts to train a UNet models that were used in our experiments and as such essential to reproduce our results.[[1](https://zenodo.org/record/6667655),[2](https://doi.org/10.1148/ryai.230031)]
 
-> [picai_unet_semi_supervised_gc_algorithm].(https://github.com/DIAGNijmegen/picai_unet_semi_supervised_gc_algorithm)
+> [picai_unet_semi_supervised_gc_algorithm](https://github.com/DIAGNijmegen/picai_unet_semi_supervised_gc_algorithm)
 The ```picai_unet_semi_supervised_gc_algorithm``` repository contains scripts to prepare the docker container for submissions and the an already trained baseline model which we also utilized in our experiments. 
 
-> [picai_labels].(https://github.com/DIAGNijmegen/picai_labels)
+> [picai_labels](https://github.com/DIAGNijmegen/picai_labels) [[1](https://zenodo.org/record/6667655)]
 Contains the label data and clinical data of the challenge. 
 
-> [PI-CAI challenge].(https://pi-cai.grand-challenge.org/)
+> [PI-CAI challenge](https://pi-cai.grand-challenge.org/)
 The challenge website for additional information.
 
 Please follow the instructions on their corresponding webpages for proper installations.
@@ -45,7 +45,7 @@ Experiments 14 and 16 took too much memory and eventually stopped with a memory 
 Experiments 17, 18 and LeakyRelu-BatchNorm were unsuccesful modifications of the model architecture which resulted in errors which we didn't have time to debug.
 
 #### process_files
-This directory contains the modified ```process.py``` files that were used for local testing and constructing docker containers for the postprocessing experiment and clinical data experiments. While most of the code was taken from ```[picai_unet_semi_supervised_gc_algorithm].(https://github.com/DIAGNijmegen/picai_unet_semi_supervised_gc_algorithm)```it contains our modifications as well.
+This directory contains the modified ```process.py``` files that were used for local testing and constructing docker containers for the postprocessing experiment and clinical data experiments. While most of the code was taken from [picai_unet_semi_supervised_gc_algorithm](https://github.com/DIAGNijmegen/picai_unet_semi_supervised_gc_algorithm), it contains our modifications as well.
 
 #### training_extensions
 This directory contains modifications to the training procedures such as changing the optimizer.
@@ -67,3 +67,8 @@ Contains the retrieved logs from training on Snellius. The most up to date can b
 
 ### tabular_models
 Contains the directories of the models. Ridge and MLP were not submitted to the challenge. If the reader wants to reuse these, only copy the files (not the directories) as instructed in the previous section.
+
+## References
+[1][A. Saha, J. J. Twilt, J. S. Bosma, B. van Ginneken, D. Yakar, M. Elschot, J. Veltman, J. J. Fütterer, M. de Rooij, H. Huisman, "Artificial Intelligence and Radiologists at Prostate Cancer Detection in MRI: The PI-CAI Challenge (Study Protocol)", DOI: 10.5281/zenodo.6667655](https://zenodo.org/record/6667655)
+
+[2][J. S. Bosma, A. Saha, M. Hosseinzadeh, I. Slootweg, M. de Rooij, and H. Huisman, "Semisupervised Learning with Report-guided Pseudo Labels for Deep Learning–based Prostate Cancer Detection Using Biparametric MRI", Radiology: Artificial Intelligence, 230031, 2023. doi:10.1148/ryai.230031](https://doi.org/10.1148/ryai.230031)
