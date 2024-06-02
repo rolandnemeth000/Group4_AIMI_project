@@ -23,7 +23,11 @@ Contains the label data and clinical data of the challenge.
 > [PI-CAI challenge](https://pi-cai.grand-challenge.org/)
 The challenge website for additional information.
 
-Please follow the instructions on their corresponding webpages for proper installations.
+Please follow the instructions on their corresponding web pages for proper installation manual.
+
+### Model Weights
+The UNet model weights resulting from our experiments were too large to upload to GitHub. They are available [here](https://drive.google.com/file/d/1m30DooftxwlWTw2SUm5JYFLijFC7t6gi/view?usp=sharing).
+
 
 ## Structure of the repository
 This repository contains multiple directories. The directories and subdirectories are described in the upcoming subsections.
@@ -58,9 +62,9 @@ This directory contains utilities such as log analyzer and testing the output of
 
 ### docker 
 This directory contains 3 subdirectories.
-1. ```docker_hp``` is a subdirectory that contains (almost) all necessary components to build and export a Docker container of the chosen hyperparameter (hp) experiment. Please copy the weights of the experiments you want to dockerize into the weights folder. (All weights can be downloaded from [here].(url))
-2. ```docker_postprocessing``` is a subdirectory that contains (almost) all necessary components to build and export a Docker container of the postprocessing experiment. Please copy the **baseline** ```weights``` into the ```weights``` folder before dockerizing. (The weights can be downloaded from [here].(url))
-3. ```docker_tabular``` is a subdirectory that contains (almost) all necessary components to build and export a Docker container of the tabular experiment. Please copy the **baseline** weights into the ```weights``` folder and the selected tabular model **files** (without their directory) from ```AIMI_project/tabular_models``` into the ```docker/docker_tabular/tabular_models``` before dockerizing it. (The weights can be downloaded from [here].(url))
+1. ```docker_hp``` is a subdirectory that contains (almost) all necessary components to build and export a Docker container of the chosen hyperparameter (hp) experiment. Please copy the weights of the experiments you want to dockerize into the weights folder. (All weights can be downloaded from [here](https://drive.google.com/file/d/1m30DooftxwlWTw2SUm5JYFLijFC7t6gi/view?usp=sharing).)
+2. ```docker_postprocessing``` is a subdirectory that contains (almost) all necessary components to build and export a Docker container of the postprocessing experiment. Please copy the **baseline** ```weights``` into the ```weights``` folder before dockerizing. (The weights can be downloaded from [here](https://drive.google.com/file/d/1m30DooftxwlWTw2SUm5JYFLijFC7t6gi/view?usp=sharing).)
+3. ```docker_tabular``` is a subdirectory that contains (almost) all necessary components to build and export a Docker container of the tabular experiment. Please copy the **baseline** weights into the ```weights``` folder and the selected tabular model **files** (without their directory) from ```AIMI_project/tabular_models``` into the ```docker/docker_tabular/tabular_models``` before dockerizing it. (The weights can be downloaded from [here](https://drive.google.com/file/d/1m30DooftxwlWTw2SUm5JYFLijFC7t6gi/view?usp=sharing).)
 
 ### logs
 Contains the retrieved logs from training on Snellius. The most up to date can be found ```logs/logs/logs```
