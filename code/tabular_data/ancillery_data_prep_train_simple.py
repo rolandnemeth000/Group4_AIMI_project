@@ -254,20 +254,13 @@ def train_svc_ensemble(data):
     print(f"SVC ensemble: ROC-AUC: {roc_auc}, F1-score: {f1}")
 
 
-def main(input: pathlib.Path, output: pathlib.Path) -> None:
-    raise NotImplementedError()
-
 
 if __name__ == "__main__":
-    file_path = pathlib.Path(
-        "/home/rolandnemeth/AIMI_project/input/picai_labels/clinical_information/marksheet.csv"
-    )
+    # Add path here to the the clinical data on your machine (see example)
+    file_path = ... # pathlib.Path("./input/picai_labels/clinical_information/marksheet.csv")
     df = load_data(file_path)
     train_ridge_ensemble(df)
     train_logistic_ensemble(df)
     train_mlp_ensemble(df)
     train_svc_ensemble(df)
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("filename", type=pathlib.Path, default="./ancillery_data_prep.py")
-    # parser.add_argument("--input_path", type=pathlib.Path, required=True)
-    # parser.add_argument("--output_path", type=pathlib.Path, default="./preprocessed_ancillery_data")
+

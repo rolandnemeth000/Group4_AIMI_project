@@ -169,10 +169,9 @@ class csPCaAlgorithm(SegmentationAlgorithm):
 
 
 
-
+        ## Addition
         #Doing things for tabular data 
-        #loading the different pahts 
-        
+        #loading the different paths 
         self.MODELS_DIR = Path("/opt/algorithm/tabular_models/")
 
         self.models_tabular = []
@@ -194,7 +193,7 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         tabular_data_df = pd.DataFrame(tabular_data_dict, index=[0])
         self.input_data = tabular_data_df
         self.input_data = self.scaler.transform(self.input_data)
-
+        ###########################
 
 
     # generate + save predictions, given images
@@ -310,7 +309,7 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         atomic_image_write(cspca_det_map_sitk, self.detection_map_output_path)
 
         
-        #Doing things for tabular data         
+        #Doing inference for tabular data         
         ensemble_output_2 = np.empty((len(self.models_tabular), 2))
 
         for i, model in enumerate(self.models_tabular):
@@ -319,7 +318,7 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         ensemble_output_2_mean = ensemble_output_2.mean(axis=1)[1]
 
 
-        ## Combining the things (real)
+        ## Combining the results (real)
         prob_img = float(np.max(cspca_det_map_npy))
         prob_tab = ensemble_output_2_mean
         weight_img = 0.7 
@@ -329,7 +328,7 @@ class csPCaAlgorithm(SegmentationAlgorithm):
         weighted_tab = weight_tab * prob_tab
 
         total_prob_value = weighted_img+weighted_tab
-
+        ###########################################
 
 
         # save case-level likelihood

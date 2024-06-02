@@ -43,4 +43,4 @@ cp -rv $TMPDIR/data/overviews $HOME/data/overviews
 # Run training script
 python3 -u $HOME/repos/picai_baseline/src/picai_baseline/unet/train.py --weights_dir $HOME/models/picai/unet/hp_exp4 --overviews_dir $TMPDIR/data/overviews/unet --folds 0 1 2 3 4 --num_epochs 100 --base_lr 0.0025 --focal_loss_gamma 0
 
-## Changed LR to 0.005, Focal loss and epochs
+## Changed LR to 0.0025, Focal loss and epochs

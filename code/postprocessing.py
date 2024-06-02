@@ -9,12 +9,8 @@ from skimage import filters, measure, morphology
 import SimpleITK as sitk
 
 # Set image and output paths
-# OUTPUT_PATH = Path("/home/rolandnemeth/AIMI_project/output/ensemble_output.npy")  # Save
-# INPUT_PATH = Path("/home/rolandnemeth/AIMI_project/repos/picai_nnunet_semi_supervised_gc_algorithm/test/images/transverse-adc-prostate-mri/10032_1000032_adc.mha")
-
-
-OUTPUT_PATH = Path("/home/rolandnemeth/AIMI_project/output/ensemble_output2.npy")  # Save
-INPUT_PATH = Path("/home/rolandnemeth/AIMI_project/input/10000/10000_1000000_adc.mha")
+OUTPUT_PATH = ... # Path("./output/ensemble_output2.npy")  # Save
+INPUT_PATH = ... # Path("./input/10000/10000_1000000_adc.mha")
 
 
 PATIENCE_BUFFER = 30

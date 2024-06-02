@@ -15,7 +15,7 @@ module load 2022
 module load Python/3.10.4-GCCcore-11.3.0
 
 # Set up environment
-cp $HOME/repos/AIMI_project/code/train_ext_focal.py $HOME/repos/picai_baseline/src/picai_baseline/unet/
+cp $HOME/repos/AIMI_project/code/training_extensions/train_ext_focal.py $HOME/repos/picai_baseline/src/picai_baseline/unet/
 python3 -m pip install --user --upgrade pip
 python3 -m pip install --user scikit-build
 python3 -m pip install --user picai_baseline

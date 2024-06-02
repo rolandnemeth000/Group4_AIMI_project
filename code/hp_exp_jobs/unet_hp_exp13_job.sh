@@ -44,4 +44,4 @@ cp -rv $TMPDIR/data/overviews $HOME/data/overviews
 # Run training script
 python3 -u $HOME/repos/picai_baseline/src/picai_baseline/unet/train_ext.py --weights_dir $HOME/models/picai/unet/hp_exp13 --overviews_dir $TMPDIR/data/overviews/unet --folds 0 1 2 3 4 --num_epochs 100 --optimizer SGD
 
-## Changed optimizer
+## Changed optimizer to SGD

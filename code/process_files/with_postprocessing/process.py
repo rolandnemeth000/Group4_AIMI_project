@@ -33,6 +33,7 @@ from scipy.ndimage import gaussian_filter, binary_opening, binary_closing, gener
 from skimage.measure import label, regionprops
 from skimage import filters, measure, morphology
 
+## Added postprocessing methods
 def postprocessing(ensemble_output, adc_image_path, structuring_element=generate_binary_structure(3, 1), patience_buffer=30):
     """
     Performs opening, contour identification, convex hull and closing on the ensemble_output.
@@ -131,7 +132,7 @@ def locate_prostate_adc_single_side(ensemble_output, adc_image_path):
     )
 
     return closest_region.bbox
-
+###################
 
 class csPCaAlgorithm(SegmentationAlgorithm):
     """
